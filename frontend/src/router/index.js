@@ -21,7 +21,16 @@ const router = createRouter({
       component: () => import('@/layouts/AppLayout.vue'),
       children: [
         { path: '', redirect: '/items' },
-        { path: 'items', name: 'items', ...placeholder('Gegenstände') },
+        {
+          path: 'items',
+          name: 'items',
+          component: () => import('@/views/items/ItemsView.vue'),
+        },
+        {
+          path: 'items/:id',
+          name: 'item-detail',
+          component: () => import('@/views/items/ItemDetailView.vue'),
+        },
         {
           path: 'locations',
           name: 'locations',
