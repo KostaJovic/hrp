@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\BudgetController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\ExpenseController;
+use App\Http\Controllers\Api\V1\ExportController;
 use App\Http\Controllers\Api\V1\ItemController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\MaintenanceLogController;
@@ -38,6 +39,8 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('maintenance-logs', MaintenanceLogController::class);
         Route::apiResource('expenses', ExpenseController::class);
         Route::apiResource('budgets', BudgetController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('/export/json', [ExportController::class, 'json']);
+        Route::get('/export/csv/{entity}', [ExportController::class, 'csv']);
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
         Route::apiResource('documents', DocumentController::class)->only(['index', 'store', 'destroy']);
         Route::apiResource('projects', ProjectController::class);
