@@ -2,36 +2,17 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import documentsApi from '@/api/documents'
 import itemsApi from '@/api/items'
+import DocumentsSection from '@/components/DocumentsSection.vue'
 import { formatCents } from '@/lib/money'
 
 import ItemFormDialog from './ItemFormDialog.vue'
-
-const KIND_LABELS = {
-  photo: 'Foto',
-  receipt: 'Beleg',
-  invoice: 'Rechnung',
-  manual: 'Handbuch',
-  warranty: 'Garantie',
-  other: 'Sonstiges',
-}
 
 const route = useRoute()
 const router = useRouter()
 
 const item = ref(null)
-const documents = ref([])
 const editDialog = ref(false)
-const uploading = ref(false)
-const uploadKind = ref('photo')
-const uploadFile = ref(null)
-const error = ref(null)
-
-const photos = computed(() => documents.value.filter((doc) => doc.kind === 'photo'))
-const files = computed(() => documents.value.filter((doc) => doc.kind !== 'photo'))
-
-const kindOptions = Object.entries(KIND_LABELS).map(([value, title]) => ({ value, title }))
 
 const facts = computed(() => {
   if (!item.value) return []
@@ -49,30 +30,6 @@ const facts = computed(() => {
 
 async function load() {
   item.value = await itemsApi.get(route.params.id)
-  documents.value = await documentsApi.listFor('item', route.params.id)
-}
-
-async function upload() {
-  if (!uploadFile.value) return
-  uploading.value = true
-  error.value = null
-  try {
-    await documentsApi.upload('item', item.value.id, {
-      file: uploadFile.value,
-      kind: uploadKind.value,
-    })
-    uploadFile.value = null
-    documents.value = await documentsApi.listFor('item', item.value.id)
-  } catch {
-    error.value = 'Upload fehlgeschlagen.'
-  } finally {
-    uploading.value = false
-  }
-}
-
-async function removeDocument(doc) {
-  await documentsApi.destroy(doc.id)
-  documents.value = await documentsApi.listFor('item', item.value.id)
 }
 
 async function removeItem() {
@@ -119,80 +76,7 @@ onMounted(load)
       <v-col cols="12" md="6">
         <v-card title="Fotos & Dokumente">
           <v-card-text>
-            <v-row v-if="photos.length" dense class="mb-2">
-              <v-col v-for="photo in photos" :key="photo.id" cols="4">
-                <v-img
-                  :src="documentsApi.downloadUrl(photo)"
-                  aspect-ratio="1"
-                  cover
-                  class="rounded"
-                />
-                <v-btn
-                  block
-                  size="x-small"
-                  variant="text"
-                  prepend-icon="mdi-delete"
-                  @click="removeDocument(photo)"
-                >
-                  Entfernen
-                </v-btn>
-              </v-col>
-            </v-row>
-
-            <v-list v-if="files.length" density="compact">
-              <v-list-item
-                v-for="doc in files"
-                :key="doc.id"
-                :title="doc.title || doc.original_name"
-                :subtitle="KIND_LABELS[doc.kind]"
-                :href="documentsApi.downloadUrl(doc)"
-                prepend-icon="mdi-file-document"
-              >
-                <template #append>
-                  <v-btn
-                    icon="mdi-delete"
-                    size="small"
-                    variant="text"
-                    @click.prevent="removeDocument(doc)"
-                  />
-                </template>
-              </v-list-item>
-            </v-list>
-
-            <p v-if="!documents.length" class="text-medium-emphasis">
-              Noch keine Fotos oder Dokumente.
-            </p>
-
-            <v-divider class="my-3" />
-
-            <!-- capture opens the camera directly on phones -->
-            <v-file-input
-              v-model="uploadFile"
-              label="Datei auswählen"
-              density="compact"
-              accept="image/*,.pdf"
-              capture="environment"
-            />
-            <div class="d-flex align-center">
-              <v-select
-                v-model="uploadKind"
-                :items="kindOptions"
-                label="Art"
-                density="compact"
-                hide-details
-                max-width="200"
-              />
-              <v-btn
-                color="primary"
-                class="ml-3"
-                :loading="uploading"
-                :disabled="!uploadFile"
-                @click="upload"
-              >
-                Hochladen
-              </v-btn>
-            </div>
-            <v-alert v-if="error" type="error" density="compact" class="mt-3">{{ error }}</v-alert>
+            <DocumentsSection documentable-type="item" :documentable-id="item.id" />
           </v-card-text>
         </v-card>
       </v-col>
