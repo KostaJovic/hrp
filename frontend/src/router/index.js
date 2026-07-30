@@ -46,7 +46,11 @@ const router = createRouter({
           name: 'maintenance',
           component: () => import('@/views/maintenance/MaintenanceView.vue'),
         },
-        { path: 'expenses', name: 'expenses', ...placeholder('Ausgaben') },
+        {
+          path: 'expenses',
+          name: 'expenses',
+          component: () => import('@/views/expenses/ExpensesView.vue'),
+        },
         { path: 'projects', name: 'projects', ...placeholder('Projekte') },
       ],
     },
