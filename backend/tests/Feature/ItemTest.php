@@ -6,6 +6,7 @@ use App\Enums\LocationKind;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\Location;
+use App\Models\Project;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -106,6 +107,17 @@ class ItemTest extends TestCase
 
         $this->getJson('/api/v1/items?tag=kamera')->assertOk()->assertJsonCount(1, 'data');
         $this->getJson("/api/v1/items?category_id={$lenses->id}")->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    public function test_project_filter(): void
+    {
+        $project = Project::factory()->create();
+        Item::factory()->create(['project_id' => $project->id]);
+        Item::factory()->create();
+
+        $this->getJson("/api/v1/items?project_id={$project->id}")
+            ->assertOk()
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_pagination_and_sorting(): void

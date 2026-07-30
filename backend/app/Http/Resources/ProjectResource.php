@@ -17,6 +17,7 @@ class ProjectResource extends JsonResource
             'starts_on' => $this->starts_on?->toDateString(),
             'ends_on' => $this->ends_on?->toDateString(),
             'budget_cents' => $this->budget_cents,
+            'spent_cents' => $this->when(isset($this->spent_cents), $this->spent_cents),
             'notes' => $this->notes,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

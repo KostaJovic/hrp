@@ -2,11 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
 
-const placeholder = (title) => ({
-  component: () => import('@/views/PlaceholderView.vue'),
-  props: { title },
-})
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -51,7 +46,16 @@ const router = createRouter({
           name: 'expenses',
           component: () => import('@/views/expenses/ExpensesView.vue'),
         },
-        { path: 'projects', name: 'projects', ...placeholder('Projekte') },
+        {
+          path: 'projects',
+          name: 'projects',
+          component: () => import('@/views/projects/ProjectsView.vue'),
+        },
+        {
+          path: 'projects/:id',
+          name: 'project-detail',
+          component: () => import('@/views/projects/ProjectDetailView.vue'),
+        },
       ],
     },
   ],

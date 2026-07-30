@@ -19,6 +19,7 @@ class ItemController extends Controller
             'q' => ['sometimes', 'string', 'max:255'],
             'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
             'location_id' => ['sometimes', 'integer', 'exists:locations,id'],
+            'project_id' => ['sometimes', 'integer', 'exists:projects,id'],
             'tag' => ['sometimes', 'string', 'max:255'],
             'warranty' => ['sometimes', Rule::in(['active'])],
             'sort' => ['sometimes', Rule::in([
@@ -48,6 +49,7 @@ class ItemController extends Controller
                 'location_id',
                 Location::query()->findOrFail($id)->subtreeIds(),
             ))
+            ->when($filters['project_id'] ?? null, fn ($query, $id) => $query->where('project_id', $id))
             ->when($filters['tag'] ?? null, fn ($query, $tag) => $query->whereHas(
                 'tags', fn ($w) => $w->where('name', $tag),
             ))
