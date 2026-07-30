@@ -19,6 +19,7 @@ class ExpenseController extends Controller
             'item_id' => ['sometimes', 'integer', 'exists:items,id'],
             'from' => ['sometimes', 'date'],
             'to' => ['sometimes', 'date', 'after_or_equal:from'],
+            'recurring' => ['sometimes', 'boolean'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
@@ -29,6 +30,7 @@ class ExpenseController extends Controller
             ->when($filters['item_id'] ?? null, fn ($query, $id) => $query->where('item_id', $id))
             ->when($filters['from'] ?? null, fn ($query, $date) => $query->whereDate('spent_on', '>=', $date))
             ->when($filters['to'] ?? null, fn ($query, $date) => $query->whereDate('spent_on', '<=', $date))
+            ->when($filters['recurring'] ?? null, fn ($query) => $query->whereNotNull('recurrence_interval'))
             ->orderByDesc('spent_on')
             ->paginate($filters['per_page'] ?? 25);
 

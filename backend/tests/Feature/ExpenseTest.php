@@ -61,6 +61,20 @@ class ExpenseTest extends TestCase
         ])->assertCreated()->assertJsonPath('data.next_due_on', '2026-08-01');
     }
 
+    public function test_recurring_filter(): void
+    {
+        Expense::factory()->create();
+        Expense::factory()->create([
+            'recurrence_interval' => 1,
+            'recurrence_unit' => 'month',
+            'next_due_on' => '2026-08-01',
+        ]);
+
+        $this->getJson('/api/v1/expenses?recurring=1')
+            ->assertOk()
+            ->assertJsonCount(1, 'data');
+    }
+
     public function test_date_range_filter(): void
     {
         Expense::factory()->create(['spent_on' => '2026-05-01']);
